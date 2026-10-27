@@ -1,0 +1,8 @@
+# Built by the workflow (or locally with scripts/build_index.py) - not committed
+data/
+sample/
+raw/
+_site/
+__pycache__/
+*.csv
+*.zip

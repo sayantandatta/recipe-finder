@@ -1,0 +1,79 @@
+# Builds the recipe index from the Food.com dataset on Kaggle and publishes the site to GitHub Pages.
+# One-time setup:
+#   1. Settings > Secrets and variables > Actions: add KAGGLE_USERNAME and KAGGLE_KEY
+#      (from kaggle.com > Settings > API > Create New Token).
+#   2. Settings > Pages > Build and deployment > Source: "GitHub Actions".
+# Without the Kaggle secrets the site still deploys, using the 32 sample recipes.
+name: Build and deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Download Food.com dataset
+        id: kaggle
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+        run: |
+          if [ -z "$KAGGLE_USERNAME" ] || [ -z "$KAGGLE_KEY" ]; then
+            echo "No Kaggle secrets set - building the sample site."
+            echo "real=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          pip install --quiet kaggle
+          kaggle datasets download -d shuyangli94/food-com-recipes-and-user-interactions -p raw --unzip
+          ls -la raw
+          echo "real=true" >> "$GITHUB_OUTPUT"
+
+      - name: Build recipe index
+        run: |
+          rm -rf data
+          if [ "${{ steps.kaggle.outputs.real }}" = "true" ]; then
+            python scripts/build_index.py raw/RAW_recipes.csv raw/RAW_interactions.csv --out data
+          else
+            python scripts/make_sample.py sample
+            python scripts/build_index.py sample/RAW_recipes.csv sample/RAW_interactions.csv \
+              --out data --shards 8 --min-cuisine 1 --demo
+          fi
+
+      - name: Assemble site
+        run: |
+          mkdir -p _site
+          cp -r index.html assets data _site/
+          touch _site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
