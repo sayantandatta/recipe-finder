@@ -471,6 +471,16 @@
       det.append(ol);
       body.append(det);
     }
+
+    if (window.Shopping) {
+      const shop = el("button", "shop-btn", "Make a shopping list");
+      shop.type = "button";
+      shop.addEventListener("click", () => window.Shopping.open({
+        id, name: d.n, ingredients: d.i, tags: d.t || [], link: a.href,
+        have: name => { const v = D.vid.get(name); return v != null && res.have[v] === 1; },
+      }));
+      body.append(shop);
+    }
     return li;
   }
 
@@ -587,6 +597,7 @@
 
   // ---------------------------------------------------------------- boot
   $("#finder").addEventListener("submit", search);
+  if (window.Shopping) window.Shopping.init();
 
   (async () => {
     try {

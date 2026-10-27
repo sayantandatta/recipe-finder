@@ -27,6 +27,27 @@ unless you switch that off. If fewer than 20 recipes qualify, the list is topped
 use most of your ingredients, under a separate heading. The search is encoded in the page URL, so a results
 page can be bookmarked or shared.
 
+## Shopping lists
+
+Every recipe has a **Make a shopping list** button, which opens three steps:
+
+1. **Setup**: number of guests, portion size (Small = 0.75 ×, Moderate = 1 ×, Big = 2 × a normal portion)
+   and any accompaniments, one per line. Common ones (rice, roti, naan, raita, salad, dal, papad and others)
+   are broken down into their ingredients.
+2. **Draft**: a checklist grouped by shop aisle, with every item ticked. Untick what you don't need, change
+   any quantity, add your own items, and round any item (or everything) up to the pack sizes sold in Indian
+   shops: loose vegetables in 250 g steps, herbs by the bunch, paneer in 200 g packs, spices in 100 g packs,
+   rice and atta in 1 kg packs, and so on.
+3. **Final list**: only the ticked items, in grams, with **Download PDF**, **Download Excel** and **Print**.
+
+Food.com's data lists ingredients without amounts, so quantities are estimates. Each ingredient type has a
+typical grams-per-person figure for a normal portion. The dish's main components are scaled together so a
+plate adds up to a sensible weight for its course (a main dish is about 380 g a head). Spices, oils and
+aromatics stay at fixed small amounts. The rules and pack sizes are in `assets/quantities.js` if you want to
+tune them. Liquids are counted at 1 ml = 1 g.
+
+## How it's built
+
 Everything runs in the browser. There is no server or database to maintain. `scripts/build_index.py`
 turns the dataset into a compact binary index (about 6 MB, 3 MB compressed) that the page scans in
 roughly 50 ms, and about 1,000 small JSON files of recipe details that are fetched only for the dishes shown.
