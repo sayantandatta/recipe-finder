@@ -488,3 +488,74 @@ a.primary, a.secondary { display: inline-flex; align-items: center; text-decorat
 .results-side { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
 .sort { display: inline-flex; align-items: center; gap: 8px; font-size: .9rem; font-weight: 600; white-space: nowrap; }
 .sort select { width: auto; min-height: 38px; padding: 6px 30px 6px 12px; border-radius: 999px; font-weight: 600; cursor: pointer; }
+
+/* ---------- launch splash ---------- */
+dialog.splash {
+  width: min(920px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 0; overflow: auto;
+  border: 0; border-radius: 22px; background: var(--paper); color: var(--ink); box-shadow: 0 30px 80px rgba(0, 0, 0, .3);
+}
+dialog.splash[open] { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); }
+dialog.splash::backdrop { background: rgba(20, 16, 10, .6); }
+.splash-close {
+  position: absolute; top: 12px; right: 12px; z-index: 2; width: 40px; height: 40px; border-radius: 50%;
+  border: 0; background: var(--paper); color: var(--ink); font-size: 1.6rem; line-height: 1; cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .15);
+}
+.splash-close:hover { background: var(--steel); }
+.splash-art {
+  display: grid; place-items: center; padding: 36px 28px;
+  background: radial-gradient(color-mix(in srgb, var(--turmeric) 22%, transparent) 1.6px, transparent 1.8px) 0 0 / 16px 16px, var(--band);
+}
+.splash-art svg { width: 100%; max-width: 380px; height: auto; overflow: visible; }
+.splash-art text { font: 700 11px var(--sans); fill: var(--ink); text-anchor: middle; }
+.splash-art text.g { font-size: 15px; font-weight: 800; fill: var(--turmeric-ink); }
+.pouch rect { fill: var(--paper); stroke: var(--ink); stroke-width: 2; }
+.pouch rect.seal { fill: var(--turmeric); stroke: var(--ink); }
+.p4 rect { fill: color-mix(in srgb, var(--turmeric) 28%, var(--paper)); }
+.box-back { fill: #b9773a; }
+.box-front { fill: #d39052; stroke: #8f5523; stroke-width: 2; }
+.flap { fill: #c58142; stroke: #8f5523; stroke-width: 2; }
+.label rect { fill: #fffaf1; stroke: #8f5523; stroke-width: 1.5; }
+.label text { fill: #2a1c0c; }
+.label .l1 { font-size: 13px; font-weight: 800; }
+.label .l2 { font-size: 10.5px; font-weight: 600; }
+
+.splash-copy { padding: 44px 40px 36px; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.splash-copy > .splash-tag {
+  width: fit-content; margin: 0 0 14px; padding: 4px 12px; border-radius: 999px; font-size: .82rem; font-weight: 800;
+  background: var(--ink); color: var(--paper);
+}
+.splash-copy h2 { font: 800 clamp(1.7rem, 3.4vw, 2.35rem)/1.08 var(--sans); letter-spacing: -0.03em; margin: 0 0 12px; }
+.splash-copy > p { margin: 0 0 18px; color: var(--muted); font-size: 1.02rem; max-width: 46ch; }
+.splash-points { list-style: none; margin: 0 0 24px; padding: 0; display: grid; gap: 10px; }
+.splash-points li { position: relative; padding-left: 30px; font-size: .94rem; color: var(--muted); }
+.splash-points li strong { color: var(--ink); }
+.splash-points li::before {
+  content: "✓"; position: absolute; left: 0; top: 1px; width: 20px; height: 20px; border-radius: 50%;
+  display: grid; place-items: center; font-size: .72rem; font-weight: 800; background: var(--cardamom-bg); color: var(--cardamom);
+}
+.splash-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.splash-actions .primary { padding: 13px 28px; font-size: 1.02rem; }
+.splash-note { margin: 0; font-size: .8rem; color: var(--muted); max-width: 30ch; }
+
+@media (prefers-reduced-motion: no-preference) {
+  dialog.splash[open] { animation: splash-in .32s cubic-bezier(.2, .8, .2, 1) both; }
+  dialog.splash[open]::backdrop { animation: fade-in .25s ease-out both; }
+  dialog.splash[open] .pouch { animation: drop .5s cubic-bezier(.2, .8, .25, 1.15) both; }
+  dialog.splash[open] .p2 { animation-delay: .08s; }
+  dialog.splash[open] .p3 { animation-delay: .16s; }
+  dialog.splash[open] .p4 { animation-delay: .24s; }
+  @keyframes splash-in { from { opacity: 0; transform: translateY(14px) scale(.98); } }
+  @keyframes fade-in { from { opacity: 0; } }
+  @keyframes drop { from { opacity: 0; transform: translateY(-26px); } }
+}
+@media (max-width: 720px) {
+  dialog.splash { width: calc(100vw - 24px); border-radius: 18px; }
+  dialog.splash[open] { grid-template-columns: 1fr; }
+  .splash-art { padding: 22px 28px 14px; }
+  .splash-art svg { max-width: 260px; }
+  .splash-copy { padding: 22px 20px 24px; }
+  .splash-copy > p { font-size: .96rem; }
+  .splash-actions .primary { width: 100%; }
+  .splash-note { max-width: none; }
+}

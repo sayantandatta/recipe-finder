@@ -661,6 +661,27 @@
   $("#finder").addEventListener("submit", search);
   if (window.Shopping) window.Shopping.init();
 
+  // launch splash: shown once per browser session, closed with ×, Escape, a click outside, or "Find a recipe"
+  (() => {
+    const dlg = $("#splash");
+    if (!dlg || typeof dlg.showModal !== "function") return;
+    const KEY = "rf-splash-seen";
+    let seen = false;
+    try { seen = sessionStorage.getItem(KEY) === "1"; } catch (_) { /* storage blocked */ }
+    if (seen) return;
+    const close = () => dlg.close();
+    dlg.addEventListener("close", () => { try { sessionStorage.setItem(KEY, "1"); } catch (_) { /* ignore */ } });
+    $("#splashClose").addEventListener("click", close);
+    $("#splashGo").addEventListener("click", () => {
+      close();
+      const first = $("#ingRows input");
+      $("#finder").scrollIntoView({ block: "start" });
+      if (first) first.focus({ preventScroll: true });
+    });
+    dlg.addEventListener("click", e => { if (e.target === dlg) close(); });
+    dlg.showModal();
+  })();
+
   (async () => {
     try {
       await load();

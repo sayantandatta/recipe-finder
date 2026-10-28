@@ -109,6 +109,40 @@
   </div>
 </footer>
 
+<dialog class="splash" id="splash" aria-labelledby="splashTitle" aria-describedby="splashText">
+  <button type="button" class="splash-close" id="splashClose" aria-label="Close">×</button>
+  <div class="splash-art" aria-hidden="true">
+    <svg viewBox="0 0 360 300" focusable="false">
+      <!-- pouches, each weighed for the recipe -->
+      <g class="pouch p1"><rect x="48" y="30" width="70" height="130" rx="10"/><rect class="seal" x="48" y="30" width="70" height="14" rx="6"/><text x="83" y="78">Basmati</text><text class="g" x="83" y="100">300 g</text></g>
+      <g class="pouch p2"><rect x="124" y="8" width="74" height="152" rx="10"/><rect class="seal" x="124" y="8" width="74" height="14" rx="6"/><text x="161" y="56">Chicken</text><text class="g" x="161" y="78">670 g</text></g>
+      <g class="pouch p3"><rect x="204" y="42" width="70" height="118" rx="10"/><rect class="seal" x="204" y="42" width="70" height="14" rx="6"/><text x="239" y="88">Yogurt</text><text class="g" x="239" y="110">590 g</text></g>
+      <g class="pouch p4"><rect x="280" y="62" width="52" height="98" rx="8"/><rect class="seal" x="280" y="62" width="52" height="12" rx="5"/><text x="306" y="88">Garam</text><text x="306" y="101">masala</text><text class="g" x="306" y="120">6 g</text></g>
+      <!-- the box -->
+      <path class="box-back" d="M40 150 h280 l-10 120 a10 10 0 0 1 -10 9 h-240 a10 10 0 0 1 -10 -9 z"/>
+      <path class="box-front" d="M30 158 h300 l-12 112 a12 12 0 0 1 -12 10 h-252 a12 12 0 0 1 -12 -10 z"/>
+      <path class="flap" d="M30 158 l-14 -30 h120 l14 30 z"/>
+      <path class="flap" d="M330 158 l14 -30 h-120 l-14 30 z"/>
+      <g class="label"><rect x="112" y="196" width="136" height="56" rx="8"/><text class="l1" x="180" y="219">Serves 4</text><text class="l2" x="180" y="240">Chicken tikka masala</text></g>
+    </svg>
+  </div>
+  <div class="splash-copy">
+    <p class="splash-tag">Coming soon</p>
+    <h2 id="splashTitle">Every ingredient, measured for your table.</h2>
+    <p id="splashText">Pick a recipe and tell us how many are eating. We pack the exact quantity of every ingredient
+      and bring it to your door, so the dish comes out right and nothing is left over.</p>
+    <ul class="splash-points">
+      <li><strong>Exact quantities.</strong> Weighed for your guests and portion size, down to the last gram of spice.</li>
+      <li><strong>Delivered to your doorstep.</strong> One box with everything the recipe needs.</li>
+      <li><strong>Nothing to measure or store.</strong> No half-used packets, no last-minute shop runs.</li>
+    </ul>
+    <div class="splash-actions">
+      <button type="button" class="primary" id="splashGo" autofocus>Find a recipe</button>
+      <p class="splash-note">Delivery isn't available yet. You can try the checkout as a demo.</p>
+    </div>
+  </div>
+</dialog>
+
 <template id="ingRowTpl">
   <li class="row">
     <input type="text" list="ingList" placeholder="e.g. potatoes" aria-label="Ingredient">
