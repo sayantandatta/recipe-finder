@@ -65,10 +65,10 @@ roughly 50 ms, and about 1,000 small JSON files of recipe details that are fetch
 ## Deploy to GitHub Pages
 
 1. Create a new repository (for example `recipe-finder`) and upload the contents of this folder.
-2. Get a Kaggle API token: kaggle.com > Settings > API > **Create New Token**. This downloads
-   `kaggle.json` with your username and key.
-3. In the repository: **Settings > Secrets and variables > Actions > New repository secret**. Add
-   `KAGGLE_USERNAME` and `KAGGLE_KEY` with the values from `kaggle.json`.
+2. Get a Kaggle API token: kaggle.com > Settings > **API Tokens** > **Generate New Token**, and copy it.
+3. In the repository: **Settings > Secrets and variables > Actions > New repository secret**. Name it
+   `KAGGLE_API_TOKEN` and paste the token. (A legacy `kaggle.json` key also works: add `KAGGLE_USERNAME`
+   and `KAGGLE_KEY` instead.)
 4. **Settings > Pages > Build and deployment > Source**: choose **GitHub Actions**.
 5. **Actions > Build and deploy > Run workflow**. The first run takes about 5 minutes. The site appears at
    `https://<your-username>.github.io/recipe-finder/`.

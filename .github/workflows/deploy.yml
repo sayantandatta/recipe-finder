@@ -1,7 +1,8 @@
 # Builds the recipe index from the Food.com dataset on Kaggle and publishes the site to GitHub Pages.
 # One-time setup:
-#   1. Settings > Secrets and variables > Actions: add KAGGLE_USERNAME and KAGGLE_KEY
-#      (from kaggle.com > Settings > API > Create New Token).
+#   1. Settings > Secrets and variables > Actions: add a secret named KAGGLE_API_TOKEN
+#      (from kaggle.com > Settings > API Tokens > Generate New Token).
+#      A legacy kaggle.json key also works: add KAGGLE_USERNAME and KAGGLE_KEY instead.
 #   2. Settings > Pages > Build and deployment > Source: "GitHub Actions".
 # Without the Kaggle secrets the site still deploys, using the 32 sample recipes.
 name: Build and deploy
@@ -30,20 +31,37 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Restore the dataset from cache
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: raw
+          key: foodcom-recipes-and-interactions-v1
+
       - name: Download Food.com dataset
         id: kaggle
         env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+          CACHED: ${{ steps.cache.outputs.cache-hit }}
         run: |
-          if [ -z "$KAGGLE_USERNAME" ] || [ -z "$KAGGLE_KEY" ]; then
-            echo "No Kaggle secrets set - building the sample site."
+          set -euo pipefail
+          if [ "$CACHED" = "true" ] && [ -s raw/RAW_recipes.csv ]; then
+            echo "Using the cached dataset."
+            echo "real=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -z "$KAGGLE_API_TOKEN" ] && { [ -z "$KAGGLE_USERNAME" ] || [ -z "$KAGGLE_KEY" ]; }; then
+            echo "No Kaggle secret set - building the sample site."
             echo "real=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          pip install --quiet kaggle
+          [ -n "$KAGGLE_API_TOKEN" ] || unset KAGGLE_API_TOKEN
+          pip install --quiet "kaggle>=1.8"
           kaggle datasets download -d shuyangli94/food-com-recipes-and-user-interactions -p raw --unzip
           ls -la raw
+          test -s raw/RAW_recipes.csv
           echo "real=true" >> "$GITHUB_OUTPUT"
 
       - name: Build recipe index
