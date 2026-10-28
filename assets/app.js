@@ -250,7 +250,7 @@
     const box = $("#spiceQuick");
     box.textContent = "";
     const picks = D.vocab.spice
-      .filter(i => !/^(fresh |dried )?(cilantro|parsley|basil|mint|vanilla extract)/.test(D.vocab.names[i]))
+      .filter(i => !/^(fresh |dried )?(cilantro|parsley|basil|mint|vanilla|pure vanilla|black pepper|pepper|white pepper|salt and pepper)/.test(D.vocab.names[i]) && !/vanilla/.test(D.vocab.names[i]))
       .slice(0, 14);
     for (const i of picks) {
       const b = el("button", null, D.vocab.names[i]);
