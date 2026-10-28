@@ -271,6 +271,81 @@
     return { people, portion: opts.portion, items: list };
   }
 
+  // ------------------------------------------------------------------ prices
+  // Approximate retail prices in Delhi NCR, rupees per kg (per litre for liquids), October 2026.
+  // Calibrated against Delhi government retail surveys and Gurugram meat rates; quick-commerce
+  // apps are often 10-30% higher. First match wins, so specific names come before general ones.
+  const PRICES_AS_OF = "October 2026";
+  const PRICES = [
+    // vegetables, herbs, fruit
+    [/lemon|lime/, 120], [/garlic/, 300], [/ginger/, 160], [/curry lea/, 300],
+    [/cilantro|coriander lea|mint|parsley|basil|dill|chives|thyme|rosemary|lemongrass|kaffir/, 200],
+    [/green onion|spring onion|scallion/, 120], [/green chil|jalapeno|chil+ies$|chil+i peppers?|chiles$/, 100],
+    [/\bonion|shallot/, 40], [/tomato(es)?$|cherry tomato/, 55], [/potato/, 35],
+    [/spinach|palak|methi leaves|fenugreek leaves/, 60], [/cabbage/, 50], [/cauliflower|gobi/, 60],
+    [/eggplant|brinjal|aubergine/, 50], [/okra|bhindi/, 80], [/cucumber/, 50], [/carrot/, 60],
+    [/\bpeas\b/, 120], [/\bcorn\b/, 90], [/bell pepper|capsicum|(red|green|yellow) pepper/, 120],
+    [/green beans|french beans/, 100], [/mushroom/, 300], [/lettuce|arugula|kale/, 250],
+    [/broccoli|zucchini|courgette|asparagus|avocado/, 350], [/pumpkin|squash|gourd/, 45],
+    [/beet|radish|turnip/, 60], [/banana/, 60], [/apple/, 200], [/pomegranate/, 220],
+    [/mango|orange|papaya|pineapple|grapes|guava/, 140], [/berr/, 900],
+    // meat, fish, eggs
+    [/egg/, 140], [/chicken breast|boneless chicken|chicken (thigh|tender)/, 520], [/chicken|turkey/, 300],
+    [/keema|minced|ground (lamb|mutton|meat)/, 850], [/mutton|lamb|goat/, 850], [/ground (beef|pork)|beef|steak|veal/, 450],
+    [/pork|bacon|ham|sausage|salami|pepperoni|chorizo/, 900], [/shrimp|prawn/, 750], [/salmon/, 2500],
+    [/tuna/, 1100], [/fish|fillet|cod|basa|pomfret|rohu|mackerel|anchov|sardine|crab|squid/, 550],
+    // dairy
+    [/paneer/, 450], [/tofu/, 400], [/buttermilk|chaas/, 50], [/ghee/, 650], [/\bbutter\b/, 580],
+    [/cream cheese/, 950], [/condensed milk/, 400], [/milk powder|powdered milk/, 520], [/ice cream/, 320],
+    [/cream|malai|half-and-half/, 300], [/yogh?urt|\bcurd\b|dahi/, 125], [/milk/, 66],
+    [/parmesan|pecorino/, 3000], [/mozzarella/, 650], [/cheese|feta|ricotta|cheddar|gouda|halloumi/, 750],
+    // rice, flour, pulses, bread
+    [/basmati/, 140], [/rice flour/, 80], [/rice noodles|noodles|ramen|vermicelli/, 300], [/rice/, 75],
+    [/whole wheat flour|\batta\b/, 52], [/chickpea flour|besan|gram flour/, 120], [/semolina|sooji|suji|rava/, 65],
+    [/flour|maida/, 50], [/oats|poha/, 180], [/quinoa/, 650], [/lentil|dal|toor|moong|masoor|urad/, 150],
+    [/chickpeas|chana|chole/, 120], [/beans/, 170], [/pasta|spaghetti|penne|macaroni|fusilli|couscous/, 260],
+    [/naan/, 330], [/tortilla|pita|wrap/, 400], [/pizza/, 250], [/bread ?crumbs|panko/, 300], [/bread|bun|roll|pav/, 125],
+    [/papad/, 400],
+    // spices
+    [/saffron|kesar/, 300000], [/cardamom|elaichi/, 3500], [/cloves?\b|laung/, 1500], [/star anise|mace/, 1500],
+    [/cinnamon|dalchini/, 600], [/bay lea/, 400], [/black pepper|white pepper|^pepper$|peppercorn/, 1000],
+    [/garam masala|curry powder|masala/, 800], [/dried (red )?chil|kashmiri/, 450], [/chil+i (powder|flakes)|red pepper flakes|cayenne|paprika/, 450],
+    [/turmeric|haldi/, 320], [/ground cumin|cumin powder|jeera powder/, 600], [/cumin|jeera/, 500],
+    [/coriander (powder|seed)|ground coriander/, 300], [/mustard seed|rai\b/, 160], [/fenugreek|methi|kasuri/, 300],
+    [/fennel|saunf|ajwain|carom|nigella|kalonji|seeds?\b/, 400], [/asafoetida|hing/, 3000],
+    [/oregano|italian seasoning|herbes|dried (basil|thyme|rosemary|parsley|mint|dill)/, 1500],
+    [/\bsalt\b/, 28], [/seasoning|powder|spice/, 700],
+    // oils, sauces, packaged
+    [/olive oil/, 950], [/sesame oil/, 900], [/mustard oil/, 190], [/coconut oil/, 350], [/\boil\b/, 165],
+    [/coconut (milk|cream)/, 400], [/tomato paste/, 300], [/tomato puree|tomato sauce|passata/, 125],
+    [/(canned|crushed|diced) tomato/, 400], [/ketchup/, 200], [/mayonnaise|mayo/, 450],
+    [/soy sauce|fish sauce|oyster sauce|hoisin|worcestershire|sriracha|hot sauce|chil+i sauce/, 450],
+    [/vinegar/, 130], [/curry paste/, 1500], [/tamarind|imli/, 300], [/peanut butter|tahini/, 550],
+    [/broth|stock/, 250], [/bouillon|cube/, 1000], [/wine|sherry|beer|rum|brandy|vodka|whisk|liqueur/, 1600],
+    [/pickle|achar|chutney|salsa|pesto/, 450], [/jam|jelly|marmalade|preserves/, 400], [/olive/, 800], [/mustard/, 400],
+    // baking and sweeteners
+    [/brown sugar|jaggery|gur\b|demerara/, 110], [/powdered sugar|icing sugar/, 130], [/sugar/, 48],
+    [/honey/, 600], [/syrup|molasses/, 500], [/baking powder/, 400], [/baking soda|bicarbonate/, 200],
+    [/yeast/, 900], [/cocoa/, 1100], [/chocolate/, 1000], [/vanilla/, 3000], [/corn ?starch|corn ?flour/, 220],
+    [/gelatin|agar/, 2000],
+    // dry fruits and nuts
+    [/cashew|almond/, 1050], [/pistachio/, 2200], [/walnut|pecan|hazelnut|pine nut/, 1700], [/peanut/, 180],
+    [/raisin|sultana/, 450], [/dates/, 400], [/fig|apricot|cranberr|prune/, 1200], [/coconut/, 400], [/makhana/, 1300],
+  ];
+  const AISLE_PRICE = { [VEG]: 80, [MEAT]: 500, [DAIRY]: 400, [GRAIN]: 120, [SPICE]: 600, [PACK]: 400,
+    [BAKE]: 300, [BREAD]: 200, [DRY]: 900, [OTHER]: 300 };
+
+  /** Rupees per kg for an item name */
+  function pricePerKg(name, aisle) {
+    const n = name.toLowerCase();
+    const hit = PRICES.find(([re]) => re.test(n));
+    return hit ? hit[1] : AISLE_PRICE[aisle] || 300;
+  }
+  /** Estimated rupees for a number of grams of an item, rounded to the rupee */
+  function cost(name, aisle, grams) {
+    return Math.max(grams > 0 ? 1 : 0, Math.round((grams / 1000) * pricePerKg(name, aisle)));
+  }
+
   // "plain yogurt" and "yogurt", "onions" and "onion" end up on one line
   const DESCRIPTORS = new Set(["fresh", "plain", "unsalted", "salted", "boneless", "skinless", "large", "small",
     "medium", "chopped", "diced", "sliced", "minced", "whole", "raw", "organic", "low-fat", "lowfat", "full-fat",
@@ -300,5 +375,6 @@
     return { grams, text: `${n} × ${it.packLabel}` };
   }
 
-  window.Quantities = { estimate, buy, tidy, rule, PORTIONS, ACCOMPANIMENT_PICKS, ACCOMPANIMENTS, AISLE_ORDER };
+  window.Quantities = { estimate, buy, tidy, rule, cost, pricePerKg, PRICES_AS_OF, PORTIONS, ACCOMPANIMENT_PICKS,
+    ACCOMPANIMENTS, AISLE_ORDER };
 })();

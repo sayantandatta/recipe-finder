@@ -29,7 +29,7 @@ page can be bookmarked or shared.
 
 ## Shopping lists
 
-Every recipe has a **Make a shopping list** button, which opens three steps:
+Every recipe has a **Make a shopping list** button, which opens four steps:
 
 1. **Setup**: number of guests, portion size (Small = 0.75 ×, Moderate = 1 ×, Big = 2 × a normal portion)
    and any accompaniments, one per line. Common ones (rice, roti, naan, raita, salad, dal, papad and others)
@@ -39,6 +39,16 @@ Every recipe has a **Make a shopping list** button, which opens three steps:
    shops: loose vegetables in 250 g steps, herbs by the bunch, paneer in 200 g packs, spices in 100 g packs,
    rice and atta in 1 kg packs, and so on.
 3. **Final list**: only the ticked items, in grams, with **Download PDF**, **Download Excel** and **Print**.
+4. **Checkout**: the estimated cost of each item and the total, then three ways to order:
+   - **Deliver from us (demo)**: delivery address, slot and cash or UPI on delivery, ending in an order
+     confirmation. It's a demo: no order is placed, nothing is charged, and nothing typed leaves the browser.
+   - **Order on a grocery app**: a search link for every item on Blinkit, Zepto, Swiggy Instamart or
+     BigBasket. These apps don't let other sites fill your cart, so you add each item there.
+   - **Send to your shop on WhatsApp**: a ready-made, editable order message for your kirana or sabzi seller,
+     sent to their number or to a contact you pick.
+
+Prices are approximate Delhi NCR retail rates (October 2026) per kg, kept in `assets/quantities.js`
+alongside the quantities. Delivery in the demo is ₹30, free on orders of ₹499 or more.
 
 Food.com's data lists ingredients without amounts, so quantities are estimates. Each ingredient type has a
 typical grams-per-person figure for a normal portion. The dish's main components are scaled together so a
