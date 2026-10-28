@@ -413,13 +413,53 @@
       : `https://www.food.com/recipe/${d.u}-${id}`;
   }
 
+  // a steady colour per cuisine for the card's top band
+  // food-like hues only: saffron, paprika, chili, mango, olive, leaf, mint, teal, aubergine
+  const HUES = [38, 20, 6, 48, 72, 120, 150, 185, 300];
+  const CUISINE_HUE = { Indian: 38, Pakistani: 38, Mexican: 6, Italian: 120, Chinese: 6, Thai: 150, Japanese: 185,
+    French: 300, Greek: 185, Spanish: 20, "Middle Eastern": 48, Lebanese: 48, American: 20, Korean: 6 };
+  function hue(label) {
+    if (label in CUISINE_HUE) return CUISINE_HUE[label];
+    let h = 0;
+    for (const ch of label || "recipe") h = (h * 31 + ch.charCodeAt(0)) % 997;
+    return HUES[h % HUES.length];
+  }
+  const svg = (paths, cls = "ico") =>
+    `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${paths}</svg>`;
+  const CLOCK = svg('<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>');
+
+  function stars(rating, count) {
+    const wrap = el("span", "rating");
+    const s = el("span", "stars", "★★★★★");
+    s.style.setProperty("--pct", `${Math.max(0, Math.min(100, (rating / 5) * 100))}%`);
+    s.setAttribute("role", "img");
+    s.setAttribute("aria-label", `Rated ${rating.toFixed(1)} out of 5`);
+    wrap.append(s, el("span", "rating-num", rating.toFixed(1)),
+      el("span", "rating-count", `(${fmt(count)} review${count === 1 ? "" : "s"})`));
+    return wrap;
+  }
+
   function recipeItem(res, i, rank, d) {
     const id = D.ids[i];
     const li = el("li", "recipe");
-    li.append(el("div", "rank", String(rank)));
-    const body = el("div");
+    if (!d) { li.append(el("p", "skeleton", "Couldn't load this recipe's details.")); return li; }
+
+    const labels = cuisineLabels(i);
+    const top = el("div", "card-top");
+    top.style.setProperty("--hue", hue(labels[0]));
+    top.append(el("span", "rank-badge", String(rank)));
+    if (labels.length) top.append(el("span", "card-cuisine", labels.join(" · ")));
+    const t = minutes(d.m);
+    if (t) {
+      const tb = el("span", "time-badge");
+      tb.innerHTML = CLOCK;
+      tb.append(t);
+      top.append(tb);
+    }
+    li.append(top);
+
+    const body = el("div", "card-body");
     li.append(body);
-    if (!d) { body.append(el("p", "skeleton", "Couldn't load this recipe's details.")); return li; }
 
     const h = el("h3");
     const a = el("a", null, d.n);
@@ -430,13 +470,12 @@
     h.append(a);
     body.append(h);
 
+    if (d.r && d.r[1] > 0) body.append(stars(d.r[1], d.r[0]));
+    else body.append(el("p", "rating rating-none", "No ratings yet"));
+
     const facts = el("p", "facts");
-    const labels = cuisineLabels(i);
-    if (labels.length) facts.append(el("span", "cui", labels.join(", ")));
-    const t = minutes(d.m);
-    if (t) facts.append(el("span", null, t));
     facts.append(el("span", null, `${d.i.length} ingredients`));
-    if (d.r) facts.append(el("span", null, `★ ${d.r[1].toFixed(1)} from ${fmt(d.r[0])} review${d.r[0] === 1 ? "" : "s"}`));
+    if (d.s && d.s.length) facts.append(el("span", null, `${d.s.length} steps`));
     if (d.c) facts.append(el("span", null, `${fmt(d.c)} kcal`));
     body.append(facts);
 
@@ -463,13 +502,14 @@
       body.append(tags);
     }
 
+    const foot = el("div", "card-foot");
     if (d.s && d.s.length) {
       const det = el("details", "method");
-      det.append(el("summary", null, `Method, ${d.s.length} step${d.s.length === 1 ? "" : "s"}`));
+      det.append(el("summary", null, `Show the method`));
       const ol = el("ol");
       d.s.forEach(s => ol.append(el("li", null, s)));
       det.append(ol);
-      body.append(det);
+      foot.append(det);
     }
 
     if (window.Shopping) {
@@ -479,8 +519,9 @@
         id, name: d.n, ingredients: d.i, tags: d.t || [], link: a.href,
         have: name => { const v = D.vid.get(name); return v != null && res.have[v] === 1; },
       }));
-      body.append(shop);
+      foot.append(shop);
     }
+    li.append(foot);
     return li;
   }
 

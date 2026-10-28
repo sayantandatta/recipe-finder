@@ -2,95 +2,111 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Recipe Finder</title>
-<meta name="description" content="Tell it what's in your kitchen: ingredients, spices and the cuisines you like. Get 20 Food.com recipes you can cook.">
+<meta name="description" content="Tell it what's in your kitchen: ingredients, spices and the cuisines you like. Get 20 Food.com recipes you can cook, and a shopping list for the rest.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Young+Serif&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-<header class="masthead">
-  <a class="brand" href="./">Recipe Finder</a>
-  <p class="source" id="source">Loading recipes…</p>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="./">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false"><path d="M2 11.2h20v1.7H2z" fill="currentColor"/><path d="M3.4 12.9h17.2c-.6 4.4-4.1 7-8.6 7s-8-2.6-8.6-7z" fill="currentColor"/><path d="M9 20.4h6v1.4H9z" fill="currentColor"/><path d="M8 9.4c-1.4-1.5 1.4-2.6 0-4.6M12 9.4c-1.4-1.5 1.4-2.8 0-5.6M16 9.4c-1.4-1.5 1.4-2.6 0-4.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </span>
+      Recipe Finder
+    </a>
+    <p class="source" id="source">Loading recipes…</p>
+    <a class="top-cta" href="#finder">Find recipes</a>
+  </div>
 </header>
 
-<main>
-  <div class="demo-banner" id="demoBanner" hidden>
-    Preview with 32 sample recipes. The full Food.com recipe set appears once the data is built.
-  </div>
-
-  <h1>What's in your kitchen?</h1>
-
-  <form id="finder" class="finder" autocomplete="off" novalidate>
-    <div class="columns">
-      <fieldset class="col" id="ingCol">
-        <legend>Ingredients</legend>
-        <p class="hint">One per line. Hindi and British names work too: aloo, paneer, aubergine.</p>
-        <ol class="rows" id="ingRows"></ol>
-        <button type="button" class="add" id="addIng">+ Add ingredient</button>
-      </fieldset>
-
-      <fieldset class="col" id="spiceCol">
-        <legend>Spices</legend>
-        <p class="hint">Type a spice and press Enter, or tap one below.</p>
-        <div class="chips" id="spiceChips" aria-live="polite"></div>
-        <input type="text" id="spiceInput" list="spiceList" placeholder="e.g. jeera, garam masala" aria-label="Add a spice">
-        <datalist id="spiceList"></datalist>
-        <p class="sub">Common in recipes</p>
-        <div class="quick" id="spiceQuick"></div>
-      </fieldset>
-
-      <fieldset class="col" id="cuiCol">
-        <legend>Cuisines</legend>
-        <p class="hint">Pick as many as you like. Leave empty for all.</p>
-        <div class="chips" id="cuiChips" aria-live="polite"></div>
-        <input type="search" id="cuiSearch" placeholder="Filter cuisines" aria-label="Filter cuisines">
-        <ul class="cuisine-list" id="cuiList"></ul>
-      </fieldset>
+<section class="hero" aria-labelledby="heroTitle">
+  <div class="hero-in">
+    <div class="demo-banner" id="demoBanner" hidden>
+      Preview with 32 sample recipes. The full Food.com recipe set appears once the data is built.
     </div>
 
-    <div class="controls">
-      <fieldset class="modes">
-        <legend>How close a match?</legend>
-        <div class="mode-grid">
-        <label class="mode">
-          <input type="radio" name="mode" value="exact">
-          <span class="mode-name">Only what I have</span>
-          <span class="mode-desc">Nothing beyond your ingredients, spices and pantry staples</span>
-        </label>
-        <label class="mode">
-          <input type="radio" name="mode" value="minimal" checked>
-          <span class="mode-name">A few more</span>
-          <span class="mode-desc">Uses all your ingredients plus at most
-            <select id="maxExtra" aria-label="Maximum extra ingredients"></select> extra</span>
-        </label>
-        <label class="mode">
-          <input type="radio" name="mode" value="includes">
-          <span class="mode-name">Anything with these</span>
-          <span class="mode-desc">Uses all your ingredients, any number of extras</span>
-        </label>
-        </div>
-      </fieldset>
+    <h1 id="heroTitle">What's in your kitchen?</h1>
+    <p class="lede">Add the ingredients and spices you have. Get 20 recipes you can cook, and a shopping list for anything missing.</p>
 
-      <div class="go">
-        <label class="switch">
-          <input type="checkbox" id="staples" checked>
-          <span>Count water, salt, pepper and oil as already in the kitchen</span>
-        </label>
-        <button type="submit" class="find" id="findBtn" disabled>Find recipes</button>
+    <form id="finder" class="finder" autocomplete="off" novalidate>
+      <div class="columns">
+        <fieldset class="col" id="ingCol">
+          <legend>Ingredients</legend>
+          <p class="hint">One per line. Hindi and British names work too: aloo, paneer, aubergine.</p>
+          <ol class="rows" id="ingRows"></ol>
+          <button type="button" class="add" id="addIng">+ Add ingredient</button>
+        </fieldset>
+
+        <fieldset class="col" id="spiceCol">
+          <legend>Spices</legend>
+          <p class="hint">Type a spice and press Enter, or tap one below.</p>
+          <div class="chips" id="spiceChips" aria-live="polite"></div>
+          <input type="text" id="spiceInput" list="spiceList" placeholder="e.g. jeera, garam masala" aria-label="Add a spice">
+          <datalist id="spiceList"></datalist>
+          <p class="sub">Common in recipes</p>
+          <div class="quick" id="spiceQuick"></div>
+        </fieldset>
+
+        <fieldset class="col" id="cuiCol">
+          <legend>Cuisines</legend>
+          <p class="hint">Pick as many as you like. Leave empty for all.</p>
+          <div class="chips" id="cuiChips" aria-live="polite"></div>
+          <input type="search" id="cuiSearch" placeholder="Filter cuisines" aria-label="Filter cuisines">
+          <ul class="cuisine-list" id="cuiList"></ul>
+        </fieldset>
       </div>
-    </div>
-  </form>
 
+      <div class="controls">
+        <fieldset class="modes">
+          <legend>How close a match?</legend>
+          <div class="mode-grid">
+          <label class="mode">
+            <input type="radio" name="mode" value="exact">
+            <span class="mode-name">Only what I have</span>
+            <span class="mode-desc">Nothing beyond your ingredients, spices and pantry staples</span>
+          </label>
+          <label class="mode">
+            <input type="radio" name="mode" value="minimal" checked>
+            <span class="mode-name">A few more</span>
+            <span class="mode-desc">Uses all your ingredients plus at most
+              <select id="maxExtra" aria-label="Maximum extra ingredients"></select> extra</span>
+          </label>
+          <label class="mode">
+            <input type="radio" name="mode" value="includes">
+            <span class="mode-name">Anything with these</span>
+            <span class="mode-desc">Uses all your ingredients, any number of extras</span>
+          </label>
+          </div>
+        </fieldset>
+
+        <div class="go">
+          <label class="switch">
+            <input type="checkbox" id="staples" checked>
+            <span>Count water, salt, pepper and oil as already in the kitchen</span>
+          </label>
+          <button type="submit" class="find" id="findBtn" disabled>Find recipes</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+
+<main>
   <section class="results" id="results" aria-live="polite"></section>
 </main>
 
 <footer class="foot">
-  <p>Recipes, ingredients and tags come from Food.com via the public
-    <a href="https://www.kaggle.com/datasets/shuyangli94/food-com-recipes-and-user-interactions">Food.com Recipes and User Interactions</a>
-    dataset. Each dish links back to its page on Food.com.</p>
+  <div class="foot-in">
+    <p class="foot-brand">Recipe Finder</p>
+    <p>Recipes, ingredients, ratings and tags come from Food.com via the public
+      <a href="https://www.kaggle.com/datasets/shuyangli94/food-com-recipes-and-user-interactions">Food.com Recipes and User Interactions</a>
+      dataset. Each dish links back to its page on Food.com. Recipe Finder isn't affiliated with Food.com.</p>
+  </div>
 </footer>
 
 <template id="ingRowTpl">
