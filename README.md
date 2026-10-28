@@ -16,11 +16,18 @@ The form has three columns:
 
 Three ways to match:
 
-| Option | A recipe is shown when… | Ranked by |
-|---|---|---|
-| Only what I have | it needs nothing beyond your ingredients, spices and pantry staples | how many of your ingredients it uses, then rating |
-| A few more | it uses all your ingredients and needs at most N extra (N = 1–10, default 10) | fewest extras, then rating |
-| Anything with these | it uses all your ingredients, with any number of extras | rating and review count |
+| Option | A recipe is shown when… |
+|---|---|
+| Only what I have | it needs nothing beyond your ingredients, spices and pantry staples |
+| A few more | it uses all your ingredients and needs at most N extra (N = 1–10, default 10) |
+| Anything with these | it uses all your ingredients, with any number of extras |
+
+Results are sorted **Best rated** by default. Each recipe's score is its star rating, adjusted for how
+many people reviewed it: a Bayesian average pulls recipes with few reviews towards 4.0 stars, and the
+score gains 0.25 for every tenfold increase in reviews. So a 4.7-star recipe with 300 reviews ranks well
+above a 5-star recipe with 2. Each extra ingredient you'd need to buy takes 0.05 off; in "Only what I
+have", each of your ingredients the recipe uses adds 0.1. You can also sort by **Fewest extra
+ingredients** or **Most reviews**.
 
 Spices count as "already in the kitchen" but aren't required. Water, salt, pepper and oil count as staples
 unless you switch that off. If fewer than 20 recipes qualify, the list is topped up with close matches that

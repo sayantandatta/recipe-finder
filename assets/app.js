@@ -96,11 +96,14 @@
     const cuiCount = new Uint8Array(bin, o, n); o += n;
     const cuis = new Uint8Array(bin, o, nCui);
 
-    // popularity: Bayesian average rating weighted by log review count
+    // Rating score, in stars. A Bayesian average pulls recipes with few reviews towards 4.0, so a
+    // 5-star recipe with 2 reviews (4.2) ranks below a 4.7 with 300 (4.7), and a bonus for review count
+    // (+0.25 per tenfold) lifts the tried-and-tested. Unrated recipes score 3.7.
+    const PRIOR = 4.0, WEIGHT = 10;
     const pop = new Float32Array(n);
     for (let i = 0; i < n; i++) {
       const N = reviews[i], R = rating[i] / 20;
-      pop[i] = N ? ((R * N + 4 * 3) / (N + 3)) * Math.log2(2 + N) : 0;
+      pop[i] = R > 0 ? (R * N + PRIOR * WEIGHT) / (N + WEIGHT) + 0.25 * Math.log10(1 + N) : PRIOR - 0.3;
     }
 
     const V = vocab.names.length;
@@ -307,7 +310,8 @@
   $("#addIng").addEventListener("click", () => addRow("", true));
 
   // ---------------------------------------------------------------- search
-  let state = null; // last search: {order, groups, shown, query}
+  let state = null;
+  let sortBy = "best"; // best | extras | reviews // last search: {order, groups, shown, query}
 
   function readQuery() {
     const ingredients = [...ingRows.querySelectorAll("input")].map(i => i.value.trim()).filter(Boolean);
@@ -316,6 +320,7 @@
       spices: spices.map(s => s.raw),
       cuisines: [...cuisinesSel],
       mode: $('input[name="mode"]:checked').value,
+      sort: sortBy,
       maxExtra: +maxSel.value,
       staples: $("#staples").checked,
     };
@@ -372,11 +377,13 @@
       else if (q.mode !== "exact" && k > 1 && cov > 0 && (q.mode === "includes" || extras <= q.maxExtra)) near.push(i);
     }
 
-    const byPop = (a, b) => pop[b] - pop[a];
-    if (q.mode === "exact") hit.sort((a, b) => covArr[b] - covArr[a] || ingCount[b] - ingCount[a] || byPop(a, b));
-    else if (q.mode === "minimal") hit.sort((a, b) => extraArr[a] - extraArr[b] || byPop(a, b));
-    else hit.sort((a, b) => byPop(a, b) || extraArr[a] - extraArr[b]);
-    near.sort((a, b) => covArr[b] - covArr[a] || extraArr[a] - extraArr[b] || byPop(a, b));
+    // Each extra ingredient to buy costs 0.05 stars; each of your ingredients a recipe uses is worth 0.1.
+    const best = i => pop[i] - 0.05 * extraArr[i] + (q.mode === "exact" ? 0.1 * covArr[i] : 0);
+    const byBest = (a, b) => best(b) - best(a);
+    const byExtras = (a, b) => extraArr[a] - extraArr[b] || (q.mode === "exact" ? covArr[b] - covArr[a] : 0) || pop[b] - pop[a];
+    const byReviews = (a, b) => D.reviews[b] - D.reviews[a] || pop[b] - pop[a];
+    hit.sort(q.sort === "extras" ? byExtras : q.sort === "reviews" ? byReviews : byBest);
+    near.sort((a, b) => covArr[b] - covArr[a] || (q.sort === "extras" ? byExtras(a, b) : q.sort === "reviews" ? byReviews(a, b) : byBest(a, b)));
 
     return { q, A, S, have, termMask, hit, near: near.slice(0, 200), covArr, extraArr };
   }
@@ -584,7 +591,19 @@
     head.append(el("h2", null, count
       ? `${fmt(count)} recipe${count === 1 ? "" : "s"} ${describeMode(q)}`
       : `No recipes ${describeMode(q)}`));
-    head.append(el("p", null, `Searched ${fmt(D.n)} recipes in ${ms} ms${count > PAGE ? `, showing the top ${PAGE}` : ""}`));
+    const side = el("div", "results-side");
+    side.append(el("p", null, `Searched ${fmt(D.n)} recipes in ${ms} ms${count > PAGE ? `, showing the top ${PAGE}` : ""}`));
+    const sl = el("label", "sort");
+    sl.htmlFor = "sortBy";
+    sl.append("Sort by ");
+    const sel = el("select");
+    sel.id = "sortBy";
+    [["best", "Best rated"], ["extras", "Fewest extra ingredients"], ["reviews", "Most reviews"]]
+      .forEach(([v, t]) => sel.append(new Option(t, v, false, v === sortBy)));
+    sel.addEventListener("change", () => { sortBy = sel.value; search().then(() => { const s2 = $("#sortBy"); if (s2) s2.focus(); }); });
+    sl.append(sel);
+    side.append(sl);
+    head.append(side);
     results.append(head);
 
     if (!res.order.length) {
@@ -619,6 +638,7 @@
     if (q.spices.length) p.set("s", q.spices.join("|"));
     if (q.cuisines.length) p.set("c", q.cuisines.join("|"));
     p.set("m", q.mode);
+    if (q.sort && q.sort !== "best") p.set("o", q.sort);
     if (q.mode === "minimal" && q.maxExtra !== 10) p.set("x", q.maxExtra);
     if (!q.staples) p.set("st", "0");
     try { history.replaceState(null, "", "#" + p.toString()); } catch (_) { /* sandboxed preview */ }
@@ -629,6 +649,7 @@
     split("i").forEach(v => addRow(v));
     split("s").forEach(addSpice);
     split("c").forEach(k => { if (D.meta.cuisines.some(c => c.key === k)) cuisinesSel.add(k); });
+    if (["extras", "reviews"].includes(p.get("o"))) sortBy = p.get("o");
     const m = p.get("m");
     if (m && $(`input[name="mode"][value="${m}"]`)) $(`input[name="mode"][value="${m}"]`).checked = true;
     if (p.get("x")) maxSel.value = p.get("x");

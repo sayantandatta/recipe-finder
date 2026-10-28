@@ -483,3 +483,8 @@ a.primary, a.secondary { display: inline-flex; align-items: center; text-decorat
   .p-pack { color: #555; font-size: 9pt; }
   .p-qty { text-align: right; font-weight: 600; }
 }
+
+/* ---------- sort ---------- */
+.results-side { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+.sort { display: inline-flex; align-items: center; gap: 8px; font-size: .9rem; font-weight: 600; white-space: nowrap; }
+.sort select { width: auto; min-height: 38px; padding: 6px 30px 6px 12px; border-radius: 999px; font-weight: 600; cursor: pointer; }
